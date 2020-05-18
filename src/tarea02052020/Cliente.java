@@ -17,7 +17,7 @@ public class Cliente extends javax.swing.JFrame {
     boolean activo;
     String direccionIP;
     int Puerto;
-    int almacenarValorDigital;
+    String almacenarValorDigital;
     /**
      * Creates new form Cliente
      */
@@ -63,6 +63,11 @@ public class Cliente extends javax.swing.JFrame {
         jLabel4.setText("Accion 0 o 1");
 
         btnEnviarValor.setText("Enviar");
+        btnEnviarValor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEnviarValorActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -123,7 +128,34 @@ public class Cliente extends javax.swing.JFrame {
         direccionIP = escribirIP.getText();
         Puerto = Integer.parseInt(escribirPuerto.getText());
         JOptionPane.showMessageDialog(null, "Todo bien, master. Puedes entrar a "+direccionIP+" en el puerto "+String.valueOf(Puerto));
+        try{
+                
+            while(activo){
+                
+                Socket socket = new Socket (escribirIP.getText(), Integer.parseInt(escribirPuerto.getText()));
+                
+                DataOutputStream buffer = new DataOutputStream(socket.getOutputStream());
+                almacenarValorDigital = InValorDigital.getText();
+                buffer.writeUTF(almacenarValorDigital);
+                JOptionPane.showMessageDialog(null, "Enviado: "+almacenarValorDigital);
+                
+                
+               
+                
+            }
+            
+        }catch( Exception e) {
+                        e.printStackTrace();
+                        }
     }//GEN-LAST:event_btnConectarActionPerformed
+
+    private void btnEnviarValorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarValorActionPerformed
+        if(InValorDigital.getText().equals("F")){
+                    activo=false;
+                    JOptionPane.showMessageDialog(null, "Lo desconecataremos por ti, adios.");
+                }
+        
+    }//GEN-LAST:event_btnEnviarValorActionPerformed
 
     /**
      * @param args the command line arguments
@@ -140,23 +172,7 @@ public class Cliente extends javax.swing.JFrame {
         });
     }
     
-    /*public SocketCliente(){
-        try{
-            System.out.println("Está conectado");
-            
-            while(activo){
-                
-                Socket socket = new Socket (direccionIP, Puerto);
-                
-                DataOutputStream buffer = new DataOutputStream(socket.getOutputStream());
-                almacenarValorDigital = Integer.parseInt(InValorDigital.getText());
-                
-            }
-            
-        }catch( Exception e) {
-                        System.out.println( e.getMessage() );
-                        }
-    }*/
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField InValorDigital;

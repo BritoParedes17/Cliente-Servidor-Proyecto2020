@@ -21,10 +21,10 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Brito Paredes
  */
-public class Home extends javax.swing.JFrame {
+public class Servidor extends javax.swing.JFrame {
 
     /**
-     * Creates new form Home
+     * Creates new form Servidor
      */
     Com selectPuerto;
     Parameters Parametros;
@@ -36,10 +36,11 @@ public class Home extends javax.swing.JFrame {
     DataInputStream flujo;
     String cadena;
     String datosRs232;
+    boolean estado_red=false;
     
     DefaultTableModel datos = new DefaultTableModel();
     
-    public Home() {
+    public Servidor() {
         initComponents();
         status.setVisible(false);
         setModel();
@@ -366,7 +367,7 @@ public class Home extends javax.swing.JFrame {
             status.setVisible(true);
             status.setText("No funciona, ups. Puerto Desconectado");
 
-            Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnConfigActionPerformed
 
@@ -411,6 +412,7 @@ public class Home extends javax.swing.JFrame {
 
     private void enviarPuertoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enviarPuertoActionPerformed
         puertoEscrito=Integer.parseInt(puertoInput.getText());
+        System.out.println(puertoEscrito);
         recibirEthernet redLeer = new recibirEthernet() {};
         redLeer.start();
     }//GEN-LAST:event_enviarPuertoActionPerformed
@@ -437,7 +439,7 @@ public class Home extends javax.swing.JFrame {
                 cad_recibe="";
             }
         }catch (Exception ex) {            
-                    Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
                  }
     }
     
@@ -447,7 +449,7 @@ public class Home extends javax.swing.JFrame {
             
         } catch (Exception ex) {
             
-            Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -461,7 +463,7 @@ public class Home extends javax.swing.JFrame {
                     jTextArea1.setText(cad_recibe);
                     
                } catch (Exception ex) {            
-                    Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
                  }
            }
            
@@ -473,7 +475,7 @@ public class Home extends javax.swing.JFrame {
             selectPuerto.sendString(datos);
         }
         catch (Exception ex) {            
-                    Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
                  }
     }
     
@@ -484,7 +486,7 @@ public class Home extends javax.swing.JFrame {
             
             try{
                 skServidor = new ServerSocket(puertoEscrito);
-                JOptionPane.showMessageDialog(null, "Todo bien, crack");
+                JOptionPane.showMessageDialog(null, "Todo bien, está conectado");
                 
                 while(active){
                     skCliente = skServidor.accept();
@@ -494,7 +496,7 @@ public class Home extends javax.swing.JFrame {
                     cadena = flujo.readUTF();
                     
                     System.out.println("Recibida del cliente: "+cadena);
-                    estado_red(true);
+                    estado_red=true;
                     
                     if(cadena.equals("0")){
                         verDatosPuerto.setText("Se recibe del cliente: "+cadena);
@@ -517,10 +519,6 @@ public class Home extends javax.swing.JFrame {
                         System.out.println( e.getMessage() );
                         }
         }
-
-        private void estado_red(boolean b) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
     }
     
     
@@ -541,20 +539,21 @@ public class Home extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Servidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Servidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Servidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Servidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Home().setVisible(true);
+                new Servidor().setVisible(true);
             }
         });
     }
