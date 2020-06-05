@@ -5,8 +5,10 @@
  */
 package tarea02052020;
 
-import java.io.DataOutputStream;
-import java.net.Socket;
+import java.net.*;
+import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -14,18 +16,62 @@ import javax.swing.JOptionPane;
  * @author Brito Paredes
  */
 public class Cliente extends javax.swing.JFrame {
-    boolean activo;
+    boolean activo=true;
     String direccionIP;
     int Puerto;
+    Socket cliente;
     String almacenarValorDigital;
+    String cadena;
+    String mensaje="";
+    DataOutputStream out;
+    InputStream aux;
+    DataInputStream flujo;
     /**
      * Creates new form Cliente
      */
     public Cliente() {
         initComponents();
+        jLabel4.setVisible(false);
+        InValorDigital.setVisible(false);
+        btnEnviarValor.setVisible(false);
         
     }
-
+    public void conectar(String IP, int Puerto){
+        try {
+            cliente = new Socket(IP, Puerto);
+            out = new DataOutputStream(cliente.getOutputStream());
+            mensaje = "Esta conectado";
+            out.writeUTF(mensaje);
+            areaText.append("Enviado: "+ mensaje+ "\n");
+            
+            
+                
+                recibir r = new recibir() {};
+                r.start();
+                
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+    public abstract class recibir extends Thread{
+        @Override
+        public void run(){
+            while(activo){
+                try {
+                    flujo = new DataInputStream(cliente.getInputStream());
+                    cadena = flujo.readUTF();
+                    areaText.append(cadena+"\n");
+                      
+                } catch (IOException ex) {
+                    Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -44,6 +90,8 @@ public class Cliente extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         InValorDigital = new javax.swing.JTextField();
         btnEnviarValor = new javax.swing.JButton();
+        Estado = new javax.swing.JScrollPane();
+        areaText = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -68,6 +116,10 @@ public class Cliente extends javax.swing.JFrame {
                 btnEnviarValorActionPerformed(evt);
             }
         });
+
+        areaText.setColumns(20);
+        areaText.setRows(5);
+        Estado.setViewportView(areaText);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -94,6 +146,10 @@ public class Cliente extends javax.swing.JFrame {
                             .addComponent(btnConectar)
                             .addComponent(btnEnviarValor))))
                 .addContainerGap(140, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 177, Short.MAX_VALUE)
+                .addComponent(Estado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -113,47 +169,42 @@ public class Cliente extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(42, 42, 42)
                         .addComponent(btnConectar)))
-                .addGap(48, 48, 48)
+                .addGap(34, 34, 34)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(InValorDigital, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnEnviarValor))
-                .addContainerGap(123, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                .addComponent(Estado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(17, 17, 17))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConectarActionPerformed
-        direccionIP = escribirIP.getText();
-        Puerto = Integer.parseInt(escribirPuerto.getText());
-        JOptionPane.showMessageDialog(null, "Todo bien, master. Puedes entrar a "+direccionIP+" en el puerto "+String.valueOf(Puerto));
-        try{
-                
-            while(activo){
-                
-                Socket socket = new Socket (escribirIP.getText(), Integer.parseInt(escribirPuerto.getText()));
-                
-                DataOutputStream buffer = new DataOutputStream(socket.getOutputStream());
-                almacenarValorDigital = InValorDigital.getText();
-                buffer.writeUTF(almacenarValorDigital);
-                JOptionPane.showMessageDialog(null, "Enviado: "+almacenarValorDigital);
-                
-                
-               
-                
-            }
-            
-        }catch( Exception e) {
-                        e.printStackTrace();
-                        }
+        conectar(escribirIP.getText(), Integer.parseInt(escribirPuerto.getText()));
+        jLabel4.setVisible(true);
+        InValorDigital.setVisible(true);
+        btnEnviarValor.setVisible(true);
+        btnConectar.setEnabled(false);
     }//GEN-LAST:event_btnConectarActionPerformed
 
     private void btnEnviarValorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarValorActionPerformed
-        if(InValorDigital.getText().equals("F")){
-                    activo=false;
-                    JOptionPane.showMessageDialog(null, "Lo desconecataremos por ti, adios.");
-                }
+            mensaje = InValorDigital.getText();
+        try {
+            
+            cliente = new Socket(escribirIP.getText(), Integer.parseInt(escribirPuerto.getText()));
+            out = new DataOutputStream(cliente.getOutputStream());
+            out.writeUTF(mensaje);
+            
+            if(InValorDigital.getText().equals("F")){
+                    JOptionPane.showMessageDialog(null,"Haz desconectado el cliente");
+            }  
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }areaText.append("Enviado: "+ mensaje+ "\n");
         
     }//GEN-LAST:event_btnEnviarValorActionPerformed
 
@@ -161,7 +212,26 @@ public class Cliente extends javax.swing.JFrame {
      * @param args the command line arguments
      */
 
-            
+    public abstract class skCliente extends Thread{
+        @Override
+        public void run(){
+            try {
+                String valor = InValorDigital.getText();
+                Socket socket = new Socket (escribirIP.getText(),Integer.parseInt(escribirPuerto.getText()));
+                
+                DataOutputStream buffer = new DataOutputStream(socket.getOutputStream());
+                cadena = valor;
+                areaText.setText("Enviando: "+cadena);
+                buffer.writeUTF(cadena);
+               
+                
+            } catch (IOException ex) {
+                Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    
     public static void main(String args[]) {
         new Cliente();
         
@@ -175,7 +245,9 @@ public class Cliente extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane Estado;
     private javax.swing.JTextField InValorDigital;
+    private javax.swing.JTextArea areaText;
     private javax.swing.JButton btnConectar;
     private javax.swing.JButton btnEnviarValor;
     private javax.swing.JTextField escribirIP;

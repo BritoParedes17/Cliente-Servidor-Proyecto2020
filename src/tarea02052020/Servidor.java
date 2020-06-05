@@ -9,6 +9,7 @@ import giovynet.serial.Baud;
 import giovynet.serial.Com;
 import giovynet.serial.Parameters;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -36,13 +37,15 @@ public class Servidor extends javax.swing.JFrame {
     Com selectPuerto;
     Parameters Parametros;
     String cad_recibe="";
-    int puertoEscrito;
-    ServerSocket skServidor;
+    static int puertoEscrito;
+    String cadena;
+    String datosRS232;
+    
     Socket skCliente;
+    ServerSocket skServidor;
     InputStream aux;
     DataInputStream flujo;
-    String cadena;
-    String datosRs232;
+    DataOutputStream out;
     boolean estado_red=false;
     
     
@@ -83,14 +86,15 @@ public class Servidor extends javax.swing.JFrame {
         btnLimpiar = new javax.swing.JButton();
         status1 = new javax.swing.JLabel();
         enviarPuerto = new javax.swing.JButton();
-        jTextField2 = new javax.swing.JTextField();
+        enviarDatoRS232 = new javax.swing.JTextField();
         jScrollPane3 = new javax.swing.JScrollPane();
-        verDatosPuerto = new javax.swing.JTextArea();
+        verDatosEthernet = new javax.swing.JTextArea();
         jScrollPane4 = new javax.swing.JScrollPane();
         estadoRS232 = new javax.swing.JTextArea();
         guardarRegistroDB = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        eliminarRegistroDB = new javax.swing.JButton();
         consultarDB = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
@@ -111,7 +115,7 @@ public class Servidor extends javax.swing.JFrame {
             }
         });
 
-        status.setText("Status del puerto");
+        status.setText("Status del puerto COM");
 
         puertoInput.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -182,15 +186,15 @@ public class Servidor extends javax.swing.JFrame {
             }
         });
 
-        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+        enviarDatoRS232.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField2ActionPerformed(evt);
+                enviarDatoRS232ActionPerformed(evt);
             }
         });
 
-        verDatosPuerto.setColumns(20);
-        verDatosPuerto.setRows(5);
-        jScrollPane3.setViewportView(verDatosPuerto);
+        verDatosEthernet.setColumns(20);
+        verDatosEthernet.setRows(5);
+        jScrollPane3.setViewportView(verDatosEthernet);
 
         estadoRS232.setColumns(20);
         estadoRS232.setRows(5);
@@ -203,10 +207,10 @@ public class Servidor extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setText("Borrar Registro en DB");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        eliminarRegistroDB.setText("Borrar Registro en DB");
+        eliminarRegistroDB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                eliminarRegistroDBActionPerformed(evt);
             }
         });
 
@@ -217,43 +221,55 @@ public class Servidor extends javax.swing.JFrame {
             }
         });
 
+        jLabel6.setText("Enviar Datos a RS232");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(29, 29, 29)
-                        .addComponent(jLabel2))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(37, 37, 37)
-                        .addComponent(comSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(50, 50, 50)
-                        .addComponent(btnConfig))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap(30, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(enviarDato)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(status1)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(puertoInput, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(status))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(enviarDatoRS232, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(enviarDato))
+                            .addComponent(jLabel6))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(enviarPuerto)
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(status)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(29, 29, 29)
+                                .addComponent(jLabel2))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(37, 37, 37)
+                                .addComponent(comSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnConfig))
+                            .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(23, 23, 23)
+                                        .addComponent(status1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(puertoInput, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(enviarPuerto)))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(130, 130, 130)
                         .addComponent(jLabel1))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 14, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
@@ -282,15 +298,10 @@ public class Servidor extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(guardarRegistroDB)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton1)
+                                .addComponent(eliminarRegistroDB)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(consultarDB)))))
-                .addContainerGap(25, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(20, 20, 20)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(717, Short.MAX_VALUE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -320,16 +331,20 @@ public class Servidor extends javax.swing.JFrame {
                             .addComponent(jLabel4)
                             .addComponent(btnEliminar))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(35, 35, 35)
-                                .addComponent(enviarDato)
-                                .addGap(7, 7, 7)
-                                .addComponent(status))
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(status)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(enviarDato)
+                                    .addComponent(enviarDatoRS232, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(status1)
                             .addComponent(enviarPuerto)
@@ -340,14 +355,9 @@ public class Servidor extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(guardarRegistroDB)
-                    .addComponent(jButton1)
+                    .addComponent(eliminarRegistroDB)
                     .addComponent(consultarDB))
                 .addContainerGap(13, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(135, 135, 135)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(297, Short.MAX_VALUE)))
         );
 
         pack();
@@ -386,7 +396,7 @@ public class Servidor extends javax.swing.JFrame {
             Recibir rx=new Recibir() {};
             rx.start();
             
-            status.setText("Puerto Concetado");
+            status.setText("Puerto COM Concetado");
             status.setVisible(true);
             
         } catch (Exception ex) {
@@ -402,7 +412,7 @@ public class Servidor extends javax.swing.JFrame {
     }//GEN-LAST:event_puertoInputActionPerformed
 
     private void enviarDatoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enviarDatoActionPerformed
-        send_rs232();
+        send_rs232(enviarDatoRS232.getText());
     }//GEN-LAST:event_enviarDatoActionPerformed
 
     private void inIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inIDActionPerformed
@@ -434,14 +444,14 @@ public class Servidor extends javax.swing.JFrame {
 
     private void enviarPuertoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enviarPuertoActionPerformed
         puertoEscrito=Integer.parseInt(puertoInput.getText());
-        System.out.println(puertoEscrito);
+        //System.out.println(puertoEscrito);
         recibirEthernet redLeer = new recibirEthernet() {};
         redLeer.start();
     }//GEN-LAST:event_enviarPuertoActionPerformed
 
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+    private void enviarDatoRS232ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enviarDatoRS232ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField2ActionPerformed
+    }//GEN-LAST:event_enviarDatoRS232ActionPerformed
 
     private void guardarRegistroDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarRegistroDBActionPerformed
         try{
@@ -480,7 +490,7 @@ public class Servidor extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_consultarDBActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void eliminarRegistroDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarRegistroDBActionPerformed
         String sql= "DELETE FROM personas WHERE id_persona="+inID.getText();
         
         try{
@@ -491,13 +501,14 @@ public class Servidor extends javax.swing.JFrame {
             
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_eliminarRegistroDBActionPerformed
     public void read_rs232(){
         try{
             
             boolean detener=false;
             char datoRecibido=0;
             Thread.sleep(2000);
+            
             while((datoRecibido = selectPuerto.receiveSingleChar())!='\0'){   
                 cad_recibe+=datoRecibido;
                 detener=true;
@@ -506,8 +517,9 @@ public class Servidor extends javax.swing.JFrame {
             if(detener==true){
                 detener=false;
                 estadoRS232.setText(cad_recibe);
+                //tabla.addRow(new Object[](inID.getText(),inNombre.getText(),inCorreo.getText(),cad_recibe));
                 System.out.println(cad_recibe);
-                datosRs232=cad_recibe;
+                datosRS232=cad_recibe;
                 cad_recibe="";
             }
         }catch (Exception ex) {            
@@ -567,21 +579,28 @@ public class Servidor extends javax.swing.JFrame {
                     flujo = new DataInputStream(aux);
                     cadena = flujo.readUTF();
                     
-                    System.out.println("Recibida del cliente: "+cadena);
+                    
+                    verDatosEthernet.append("Cadena Recibida del cliente: "+cadena+"\n");
                     estado_red=true;
                     
                     if(cadena.equals("0")){
-                        verDatosPuerto.setText("Se recibe del cliente: "+cadena);
-                        send_rs232(cadena);
-                    }else{
-                        verDatosPuerto.setText("Se recibe del cliente: "+cadena);
-                        send_rs232(cadena);
+                        //send_rs232(cadena);
+                        //Thread.sleep(2000);
+                        out= new DataOutputStream(skCliente.getOutputStream());
+                        out.writeUTF("MSG del Servidor: RS232 dice: Cadena Recibida de server");
+                    }
+                    if(cadena.equals("1")){
+                        //send_rs232(cadena);
+                        //Thread.sleep(2000);
+                        out= new DataOutputStream(skCliente.getOutputStream());
+                        out.writeUTF("MSG del Servidor: RS232 dice: Cadena Recibida de server");
+                        
                     }
                     
                     if(cadena.equals("F")){
                         active=false;
                         System.out.println("Servidor Desconectado");
-                        verDatosPuerto.setText("Se recibe del cliente: "+cadena);
+                        verDatosEthernet.setText("Se recibe del cliente: Desconectado");
                         skCliente.close();
                     }
                     
@@ -637,29 +656,30 @@ public class Servidor extends javax.swing.JFrame {
     private javax.swing.JButton btnRegistrar;
     private javax.swing.JComboBox<String> comSelect;
     private javax.swing.JButton consultarDB;
+    private javax.swing.JButton eliminarRegistroDB;
     private javax.swing.JButton enviarDato;
+    private javax.swing.JTextField enviarDatoRS232;
     private javax.swing.JButton enviarPuerto;
     private javax.swing.JTextArea estadoRS232;
     private javax.swing.JButton guardarRegistroDB;
     private javax.swing.JTextField inCorreo;
     private javax.swing.JTextField inID;
     private javax.swing.JTextField inNombre;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField puertoInput;
     private javax.swing.JLabel status;
     private javax.swing.JLabel status1;
     private javax.swing.JTable tabla;
-    private javax.swing.JTextArea verDatosPuerto;
+    private javax.swing.JTextArea verDatosEthernet;
     // End of variables declaration//GEN-END:variables
 }
