@@ -34,7 +34,7 @@ public class Servidor extends javax.swing.JFrame {
     conectar bd =new conectar();
     Connection bdc=bd.conectar();
     
-    Com selectPuerto;
+    Com selectPuertoCOM;
     Parameters Parametros;
     String cad_recibe="";
     static int puertoEscrito;
@@ -364,7 +364,7 @@ public class Servidor extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
     
     public void setModel(){
-        String[] cabecera = {"ID", "Nombre", "Correo", "Estado"};
+        String [] cabecera = {"ID", "Nombre", "Correo", "Estado"};
         datos.setColumnIdentifiers(cabecera);
         tabla.setModel(datos);
     }
@@ -392,7 +392,7 @@ public class Servidor extends javax.swing.JFrame {
             Parametros.setBaudRate(Baud._9600);
             Parametros.setMinDelayWrite(10);
             
-            selectPuerto=new Com(Parametros);
+            selectPuertoCOM=new Com(Parametros);
             Recibir rx=new Recibir() {};
             rx.start();
             
@@ -452,7 +452,9 @@ public class Servidor extends javax.swing.JFrame {
     private void enviarDatoRS232ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enviarDatoRS232ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_enviarDatoRS232ActionPerformed
+    
 
+////////////////////////////////Metodos para registros MySQL - Inicio///////////////////////////
     private void guardarRegistroDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarRegistroDBActionPerformed
         try{
             PreparedStatement pat=bdc.prepareStatement("INSERT INTO personas(id_persona,dbnombre,dbcorreo,dbestado) VALUES (?,?,?,?)");
@@ -502,6 +504,10 @@ public class Servidor extends javax.swing.JFrame {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_eliminarRegistroDBActionPerformed
+////////////////////////////////Metodos para registros MySQL - Fin///////////////////////////
+
+
+////////////////////////////////Metodos para RS232 - Inicio///////////////////////////    
     public void read_rs232(){
         try{
             
@@ -509,7 +515,7 @@ public class Servidor extends javax.swing.JFrame {
             char datoRecibido=0;
             Thread.sleep(2000);
             
-            while((datoRecibido = selectPuerto.receiveSingleChar())!='\0'){   
+            while((datoRecibido = selectPuertoCOM.receiveSingleChar())!='\0'){   
                 cad_recibe+=datoRecibido;
                 detener=true;
                 
@@ -517,7 +523,7 @@ public class Servidor extends javax.swing.JFrame {
             if(detener==true){
                 detener=false;
                 estadoRS232.setText(cad_recibe);
-                //tabla.addRow(new Object[](inID.getText(),inNombre.getText(),inCorreo.getText(),cad_recibe));
+                datos.addRow(new Object[]{inID.getText(),inNombre.getText(),inCorreo.getText(),cad_recibe});
                 System.out.println(cad_recibe);
                 datosRS232=cad_recibe;
                 cad_recibe="";
@@ -527,14 +533,15 @@ public class Servidor extends javax.swing.JFrame {
                  }
     }
     
-    public void send_rs232(){
+    public void send_rs232(String datos){
         try{
-            selectPuerto.sendString(puertoInput.getText());
-            
-        } catch (Exception ex) {
-            
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            JOptionPane.showMessageDialog(null, "Todo bien, se envio");
+            selectPuertoCOM.sendString(datos);
+             
+       }
+        catch (Exception ex) {            
+                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                 }
     }
     
     public abstract class Recibir extends Thread{
@@ -543,8 +550,9 @@ public class Servidor extends javax.swing.JFrame {
            
            while(true){
                try{
-                    cad_recibe+=selectPuerto.receiveSingleString();
-                    jTextArea1.setText(cad_recibe);
+                   read_rs232();
+                   //cad_recibe+=selectPuertoCOM.receiveSingleString();
+                   //jTextArea1.setText(cad_recibe);
                     
                } catch (Exception ex) {            
                     Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
@@ -553,16 +561,11 @@ public class Servidor extends javax.swing.JFrame {
            
         }
     }
+////////////////////////////////Metodos para RS232 - Fin///////////////////////////    
+
     
-    public void send_rs232(String datos){
-        try{
-            selectPuerto.sendString(datos);
-        }
-        catch (Exception ex) {            
-                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-                 }
-    }
     
+////////////////////////////////Metodos para conexion Ethernet - Inicio///////////////////////////    
     public abstract class recibirEthernet extends Thread{
         @Override
         public void run(){
@@ -611,7 +614,7 @@ public class Servidor extends javax.swing.JFrame {
                         }
         }
     }
-    
+ ////////////////////////////////Metodos para registros MySQL - Fin///////////////////////////   
     
     /**
      * @param args the command line arguments

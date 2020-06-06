@@ -40,8 +40,8 @@ public class Cliente extends javax.swing.JFrame {
         try {
             cliente = new Socket(IP, Puerto);
             out = new DataOutputStream(cliente.getOutputStream());
-            mensaje = "Esta conectado";
-            out.writeUTF(mensaje);
+            mensaje = " esta conectado";
+            out.writeUTF("Cliente con IP "+cliente.getInetAddress()+mensaje);
             areaText.append("Enviado: "+ mensaje+ "\n");
             
             
@@ -188,6 +188,7 @@ public class Cliente extends javax.swing.JFrame {
         InValorDigital.setVisible(true);
         btnEnviarValor.setVisible(true);
         btnConectar.setEnabled(false);
+        
     }//GEN-LAST:event_btnConectarActionPerformed
 
     private void btnEnviarValorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarValorActionPerformed
