@@ -614,7 +614,7 @@ public class Servidor extends javax.swing.JFrame {
                         }
         }
     }
- ////////////////////////////////Metodos para registros MySQL - Fin///////////////////////////   
+ ////////////////////////////////Metodos para conexion Ethernet - Fin///////////////////////////   
     
     /**
      * @param args the command line arguments
