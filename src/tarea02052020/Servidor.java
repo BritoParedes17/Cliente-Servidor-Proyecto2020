@@ -41,6 +41,7 @@ public class Servidor extends javax.swing.JFrame {
     static int puertoEscrito;
     String cadena;
     String datosRS232;
+    String mostrarEstado;
     
     Socket skCliente;
     ServerSocket skServidor;
@@ -109,6 +110,11 @@ public class Servidor extends javax.swing.JFrame {
         jLabel1.setText("Conexión con RS232");
 
         comSelect.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7" }));
+        comSelect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comSelectActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Selecciona un puerto");
 
@@ -431,7 +437,7 @@ public class Servidor extends javax.swing.JFrame {
             Parametros.setMinDelayWrite(10);
             
             selectPuertoCOM=new Com(Parametros);
-            Recibir rx=new Recibir() {};
+            RecibirCOM rx=new RecibirCOM() {};
             rx.start();
             
             status.setText("Puerto COM Concetado");
@@ -561,26 +567,39 @@ public class Servidor extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnEnviarAClienteActionPerformed
 
+    private void comSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comSelectActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comSelectActionPerformed
+
 
 ////////////////////////////////Metodos para RS232 - Inicio///////////////////////////    
     public void read_rs232(){
         try{
             
             boolean detener=false;
-            char datoRecibido=0;
+            char datoRecibido;
+            
             Thread.sleep(2000);
             
             while((datoRecibido = selectPuertoCOM.receiveSingleChar())!='\0'){   
                 cad_recibe+=datoRecibido;
                 detener=true;
                 
+                if(cad_recibe.equals("1")){
+                    mostrarEstado="Encendido";
+                }
+                if(cad_recibe.equals("0")){
+                    mostrarEstado="Apagado";
+                }
             }
             if(detener==true){
-                detener=false;
-                estadoRS232.setText(cad_recibe);
-                datos.addRow(new Object[]{inID.getText(),inNombre.getText(),inCorreo.getText(),cad_recibe});
+
+                estadoRS232.setText("RS232 dice: "+cad_recibe);
+                
+                datos.addRow(new Object[]{inID.getText(),inNombre.getText(),inCorreo.getText(),mostrarEstado});
                 System.out.println(cad_recibe);
                 datosRS232=cad_recibe;
+                mostrarEstado="";
                 cad_recibe="";
             }
         }catch (Exception ex) {            
@@ -599,7 +618,7 @@ public class Servidor extends javax.swing.JFrame {
                  }
     }
     
-    public abstract class Recibir extends Thread{
+    public abstract class RecibirCOM extends Thread{
        @Override
        public void run(){
            
@@ -646,12 +665,14 @@ public class Servidor extends javax.swing.JFrame {
                         //Thread.sleep(2000);
                         out= new DataOutputStream(skCliente.getOutputStream());
                         out.writeUTF("MSG del Servidor: RS232 dice: Cadena Recibida de server");
+                        datos.addRow(new Object[]{inID.getText(),inNombre.getText(),inCorreo.getText(),"Apagado"});
                     }
                     if(cadena.equals("1")){
                         //send_rs232(cadena);
                         //Thread.sleep(2000);
                         out= new DataOutputStream(skCliente.getOutputStream());
                         out.writeUTF("MSG del Servidor: RS232 dice: Cadena Recibida de server");
+                        datos.addRow(new Object[]{inID.getText(),inNombre.getText(),inCorreo.getText(),"Encendido"});
                         
                     }
                     
