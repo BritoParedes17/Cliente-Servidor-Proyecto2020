@@ -19,7 +19,7 @@ public class Cliente extends javax.swing.JFrame {
     boolean activo=true;
     String direccionIP;
     int Puerto;
-    Socket cliente;
+    Socket skCliente;
     String almacenarValorDigital;
     String cadena;
     String mensaje="";
@@ -38,16 +38,15 @@ public class Cliente extends javax.swing.JFrame {
     }
     public void conectar(String IP, int Puerto){
         try {
-            cliente = new Socket(IP, Puerto);
-            out = new DataOutputStream(cliente.getOutputStream());
+            skCliente = new Socket(IP, Puerto);
+            out = new DataOutputStream(skCliente.getOutputStream());
             mensaje = " esta conectado";
-            out.writeUTF("Cliente con IP "+cliente.getInetAddress()+mensaje);
-            areaText.append("Enviado: "+ mensaje+ "\n");
+            out.writeUTF("Cliente con IP "+skCliente.getInetAddress()+mensaje);
+            areaText.append("El cliente "+ mensaje+ "\n");
             
             
-                
-                recibir r = new recibir() {};
-                r.start();
+            recibir r = new recibir() {};
+            r.start();
                 
             
         } catch (IOException ex) {
@@ -61,7 +60,7 @@ public class Cliente extends javax.swing.JFrame {
         public void run(){
             while(activo){
                 try {
-                    flujo = new DataInputStream(cliente.getInputStream());
+                    flujo = new DataInputStream(skCliente.getInputStream());
                     cadena = flujo.readUTF();
                     areaText.append(cadena+"\n");
                       
@@ -195,9 +194,11 @@ public class Cliente extends javax.swing.JFrame {
             mensaje = InValorDigital.getText();
         try {
             
-            cliente = new Socket(escribirIP.getText(), Integer.parseInt(escribirPuerto.getText()));
-            out = new DataOutputStream(cliente.getOutputStream());
+            skCliente = new Socket(escribirIP.getText(), Integer.parseInt(escribirPuerto.getText()));
+            out = new DataOutputStream(skCliente.getOutputStream());
             out.writeUTF(mensaje);
+            recibir recibido =new recibir() {};
+            recibido.start();
             
             if(InValorDigital.getText().equals("F")){
                     JOptionPane.showMessageDialog(null,"Haz desconectado el cliente");
@@ -212,25 +213,6 @@ public class Cliente extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-
-    public abstract class skCliente extends Thread{
-        @Override
-        public void run(){
-            try {
-                String valor = InValorDigital.getText();
-                Socket socket = new Socket (escribirIP.getText(),Integer.parseInt(escribirPuerto.getText()));
-                
-                DataOutputStream buffer = new DataOutputStream(socket.getOutputStream());
-                cadena = valor;
-                areaText.setText("Enviando: "+cadena);
-                buffer.writeUTF(cadena);
-               
-                
-            } catch (IOException ex) {
-                Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
     
     
     public static void main(String args[]) {

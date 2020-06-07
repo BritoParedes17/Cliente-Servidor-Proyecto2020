@@ -10,6 +10,7 @@ import giovynet.serial.Com;
 import giovynet.serial.Parameters;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -95,6 +96,9 @@ public class Servidor extends javax.swing.JFrame {
         eliminarRegistroDB = new javax.swing.JButton();
         consultarDB = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        enviarACliente = new javax.swing.JTextField();
+        btnEnviarACliente = new javax.swing.JButton();
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
@@ -223,6 +227,21 @@ public class Servidor extends javax.swing.JFrame {
 
         jLabel6.setText("Enviar Datos a RS232");
 
+        jLabel7.setText("Enviar a Cliente: ");
+
+        enviarACliente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                enviarAClienteActionPerformed(evt);
+            }
+        });
+
+        btnEnviarACliente.setText("Enviar");
+        btnEnviarACliente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEnviarAClienteActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -254,15 +273,25 @@ public class Servidor extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(layout.createSequentialGroup()
                                         .addGap(23, 23, 23)
                                         .addComponent(status1)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(puertoInput, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18)
-                                        .addComponent(enviarPuerto)))))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                                        .addComponent(enviarPuerto))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(18, 18, 18)
+                                                .addComponent(jLabel7)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(enviarACliente, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(63, 63, 63)
+                                                .addComponent(btnEnviarACliente)))))))
+                        .addGap(0, 42, Short.MAX_VALUE)))
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -349,8 +378,17 @@ public class Servidor extends javax.swing.JFrame {
                             .addComponent(status1)
                             .addComponent(enviarPuerto)
                             .addComponent(puertoInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(45, 45, 45)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel7)
+                                    .addComponent(enviarACliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnEnviarACliente))))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -444,7 +482,6 @@ public class Servidor extends javax.swing.JFrame {
 
     private void enviarPuertoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enviarPuertoActionPerformed
         puertoEscrito=Integer.parseInt(puertoInput.getText());
-        //System.out.println(puertoEscrito);
         recibirEthernet redLeer = new recibirEthernet() {};
         redLeer.start();
     }//GEN-LAST:event_enviarPuertoActionPerformed
@@ -493,6 +530,8 @@ public class Servidor extends javax.swing.JFrame {
     }//GEN-LAST:event_consultarDBActionPerformed
 
     private void eliminarRegistroDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarRegistroDBActionPerformed
+        int fila=tabla.getSelectedRow();
+        datos.removeRow(fila);
         String sql= "DELETE FROM personas WHERE id_persona="+inID.getText();
         
         try{
@@ -504,7 +543,23 @@ public class Servidor extends javax.swing.JFrame {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_eliminarRegistroDBActionPerformed
+
 ////////////////////////////////Metodos para registros MySQL - Fin///////////////////////////
+    
+    private void enviarAClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enviarAClienteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_enviarAClienteActionPerformed
+
+    private void btnEnviarAClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarAClienteActionPerformed
+        String mensaje = enviarACliente.getText();
+        try {
+            out = new DataOutputStream(skCliente.getOutputStream());
+            out.writeUTF(mensaje);
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnEnviarAClienteActionPerformed
 
 
 ////////////////////////////////Metodos para RS232 - Inicio///////////////////////////    
@@ -655,11 +710,13 @@ public class Servidor extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConfig;
     private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnEnviarACliente;
     private javax.swing.JButton btnLimpiar;
     private javax.swing.JButton btnRegistrar;
     private javax.swing.JComboBox<String> comSelect;
     private javax.swing.JButton consultarDB;
     private javax.swing.JButton eliminarRegistroDB;
+    private javax.swing.JTextField enviarACliente;
     private javax.swing.JButton enviarDato;
     private javax.swing.JTextField enviarDatoRS232;
     private javax.swing.JButton enviarPuerto;
@@ -674,6 +731,7 @@ public class Servidor extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
