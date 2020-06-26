@@ -42,6 +42,7 @@ public class Servidor extends javax.swing.JFrame {
     String cadena;
     String datosRS232;
     String mostrarEstado;
+    String agregarEstado;
     
     Socket skCliente;
     ServerSocket skServidor;
@@ -77,8 +78,6 @@ public class Servidor extends javax.swing.JFrame {
         enviarDato = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tabla = new javax.swing.JTable();
-        inID = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
         inNombre = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         inCorreo = new javax.swing.JTextField();
@@ -141,14 +140,6 @@ public class Servidor extends javax.swing.JFrame {
         });
 
         jScrollPane2.setViewportView(tabla);
-
-        inID.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inIDActionPerformed(evt);
-            }
-        });
-
-        jLabel3.setText("ID");
 
         inNombre.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -308,15 +299,9 @@ public class Servidor extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel4)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(inNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel3)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(inID, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(inNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(layout.createSequentialGroup()
@@ -354,17 +339,15 @@ public class Servidor extends javax.swing.JFrame {
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(inID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3)
                             .addComponent(inCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5)
                             .addComponent(btnRegistrar)
-                            .addComponent(btnLimpiar))
+                            .addComponent(btnLimpiar)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(inNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel4)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(inNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4)
-                            .addComponent(btnEliminar))))
+                        .addComponent(btnEliminar)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
@@ -413,7 +396,12 @@ public class Servidor extends javax.swing.JFrame {
         tabla.setModel(datos);
     }
     void agregar(){
-        datos.addRow(new Object[] {inID.getText(), inNombre.getText(), inCorreo.getText()});
+        int filas=datos.getRowCount();
+        int valorId=1;
+        for (int i=0; i<filas; i++){
+            System.out.println(valorId++);
+        }
+        datos.addRow(new Object[] {valorId, inNombre.getText(), inCorreo.getText(),agregarEstado});
     }
     
     void eliminar(){
@@ -459,10 +447,6 @@ public class Servidor extends javax.swing.JFrame {
         send_rs232(enviarDatoRS232.getText());
     }//GEN-LAST:event_enviarDatoActionPerformed
 
-    private void inIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inIDActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inIDActionPerformed
-
     private void inNombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inNombreActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_inNombreActionPerformed
@@ -500,11 +484,11 @@ public class Servidor extends javax.swing.JFrame {
 ////////////////////////////////Metodos para registros MySQL - Inicio///////////////////////////
     private void guardarRegistroDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarRegistroDBActionPerformed
         try{
-            PreparedStatement pat=bdc.prepareStatement("INSERT INTO personas(id_persona,dbnombre,dbcorreo,dbestado) VALUES (?,?,?,?)");
-            pat.setString(1, inID.getText() );
-            pat.setString(2, inNombre.getText() );
-            pat.setString(3, inCorreo.getText() );
-            pat.setString(4, "Estado");
+            PreparedStatement pat=bdc.prepareStatement("INSERT INTO personas(dbnombre,dbcorreo,dbestado) VALUES (?,?,?)");
+            
+            pat.setString(1, inNombre.getText() );
+            pat.setString(2, inCorreo.getText() );
+            pat.setString(3, agregarEstado);
             pat.executeUpdate();
         }
         catch (SQLException ex) {
@@ -538,7 +522,7 @@ public class Servidor extends javax.swing.JFrame {
     private void eliminarRegistroDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarRegistroDBActionPerformed
         int fila=tabla.getSelectedRow();
         datos.removeRow(fila);
-        String sql= "DELETE FROM personas WHERE id_persona="+inID.getText();
+        String sql= "DELETE FROM personas WHERE id_persona="+tabla.getSelectedRow();
         
         try{
             Statement st= bdc.createStatement();
@@ -596,7 +580,19 @@ public class Servidor extends javax.swing.JFrame {
 
                 estadoRS232.setText("RS232 dice: "+cad_recibe);
                 
-                datos.addRow(new Object[]{inID.getText(),inNombre.getText(),inCorreo.getText(),mostrarEstado});
+                agregar();
+                try{
+                    PreparedStatement pat=bdc.prepareStatement("INSERT INTO personas(dbnombre,dbcorreo,dbestado) VALUES (?,?,?)");
+                    
+                    pat.setString(1, inNombre.getText() );
+                    pat.setString(2, inCorreo.getText() );
+                    pat.setString(3, agregarEstado);
+                    pat.executeUpdate();
+                }
+                catch (SQLException ex) {
+
+                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 System.out.println(cad_recibe);
                 datosRS232=cad_recibe;
                 mostrarEstado="";
@@ -665,20 +661,52 @@ public class Servidor extends javax.swing.JFrame {
                         //Thread.sleep(2000);
                         out= new DataOutputStream(skCliente.getOutputStream());
                         out.writeUTF("MSG del Servidor: RS232 dice: Cadena Recibida de server");
-                        datos.addRow(new Object[]{inID.getText(),inNombre.getText(),inCorreo.getText(),"Apagado"});
+                        estadoRS232.setText("Apagado"+"\n");
+                        
+                        agregarEstado = "Apagado";
+                        agregar();
+                        try{
+                            PreparedStatement pat=bdc.prepareStatement("INSERT INTO personas(dbnombre,dbcorreo,dbestado) VALUES (?,?,?)");
+                    
+                            pat.setString(1, inNombre.getText() );
+                            pat.setString(2, inCorreo.getText() );
+                            pat.setString(3, agregarEstado);
+                            pat.executeUpdate();
+                        }
+                        catch (SQLException ex) {
+
+                            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                        
                     }
                     if(cadena.equals("1")){
                         //send_rs232(cadena);
                         //Thread.sleep(2000);
                         out= new DataOutputStream(skCliente.getOutputStream());
                         out.writeUTF("MSG del Servidor: RS232 dice: Cadena Recibida de server");
-                        datos.addRow(new Object[]{inID.getText(),inNombre.getText(),inCorreo.getText(),"Encendido"});
+                        estadoRS232.setText("Encendido"+"\n");
+                        agregarEstado = "Encendido";
+                        agregar();
+                        try{
+                            PreparedStatement pat=bdc.prepareStatement("INSERT INTO personas(dbnombre,dbcorreo,dbestado) VALUES (?,?,?)");
+                    
+                            pat.setString(1, inNombre.getText() );
+                            pat.setString(2, inCorreo.getText() );
+                            pat.setString(3, agregarEstado);
+                            pat.executeUpdate();
+                        }
+                        catch (SQLException ex) {
+
+                            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         
                     }
                     
                     if(cadena.equals("F")){
                         active=false;
                         System.out.println("Servidor Desconectado");
+                        estadoRS232.setText("Desconectado"+"\n");
                         verDatosEthernet.setText("Se recibe del cliente: Desconectado");
                         skCliente.close();
                     }
@@ -744,11 +772,9 @@ public class Servidor extends javax.swing.JFrame {
     private javax.swing.JTextArea estadoRS232;
     private javax.swing.JButton guardarRegistroDB;
     private javax.swing.JTextField inCorreo;
-    private javax.swing.JTextField inID;
     private javax.swing.JTextField inNombre;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
